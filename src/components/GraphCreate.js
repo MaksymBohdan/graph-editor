@@ -1,33 +1,83 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
+import { useForm } from 'react-hook-form';
 import { GraphListContext } from '../context/graphListContext';
 
 const GraphCreate = () => {
-  const { saveNewGraph } = useContext(GraphListContext);
-  const [graphName, setGraphName] = useState('');
+  const { saveNewGraph, currentGraph, editGraph, graphs } = useContext(
+    GraphListContext
+  );
+  const { register, handleSubmit, reset, setValue } = useForm();
+  const isEditable = currentGraph.id;
 
-  const onSave = () => {
-    saveNewGraph(graphName);
-    setGraphName('');
+  const onSubmit = (data) => {
+    if (isEditable) {
+      editGraph(currentGraph.id, data);
+      return;
+    } else {
+      saveNewGraph(data);
+    }
+
+    reset();
   };
 
+  useEffect(() => {
+    setValue([{ name: currentGraph.name }, { edge: currentGraph.edge }]);
+  }, [isEditable]);
+
   return (
-    <CreateGraphCmp>
-      New GRAPH
-      <input
-        type="text"
-        name="newGraph"
-        onChange={(e) => setGraphName(e.target.value)}
-        value={graphName}
-      />
-      <button onClick={onSave}>Save</button>
-    </CreateGraphCmp>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Title>Manage</Title>
+      <Input name="name" placeholder="Name" ref={register} type="text" />
+      <Select name="edge" placeholder="Edges" ref={register}>
+        <option value="" disabled>
+          Connect graph...
+        </option>
+        {graphs
+          .filter(
+            (graph) =>
+              graph.id !== currentGraph.id &&
+              !graph.edge.includes(currentGraph.id)
+          )
+          .map((graph) => (
+            <option key={graph.id} value={graph.id}>
+              {graph.name}
+            </option>
+          ))}
+      </Select>
+      <Button type="submit">{isEditable ? 'Edit' : 'Save'} </Button>
+      <Button type="reset" onClick={reset}>
+        Clear
+      </Button>
+    </form>
   );
 };
 
-const CreateGraphCmp = styled.div`
-  display: flex;
-  flex-direction: column;
+const Title = styled.p`
+  padding: 0;
+  margin: 0;
+  margin-bottom: 10px;
+  text-align: center;
+`;
+
+const Input = styled.input`
+  display: block;
+  margin: auto;
+  width: 200px;
+  margin-bottom: 10px;
+`;
+
+const Select = styled.select`
+  display: block;
+  margin: auto;
+  width: 200px;
+  margin-bottom: 10px;
+`;
+
+const Button = styled.button`
+  display: block;
+  margin: auto;
+  width: 200px;
 `;
 
 export default GraphCreate;

@@ -37,14 +37,17 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.div`
-  padding: 40px 0;
+  min-height: 100px;
   border-bottom: 1px solid black;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const AddButton = styled.button`
   margin-right: 15px;
+  padding: 10px;
+  width: 100px;
 `;
 
 const Main = styled.div`

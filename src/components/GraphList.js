@@ -3,12 +3,30 @@ import styled from 'styled-components';
 import { GraphListContext } from '../context/graphListContext';
 
 const GraphList = () => {
-  const { graphs } = useContext(GraphListContext);
+  const {
+    graphs,
+    handleCurrentGraph,
+    resetCurrentGraph,
+    currentGraph,
+  } = useContext(GraphListContext);
+
+  const getCurrentGraph = (e) => {
+    const id = e.target.dataset.id;
+
+    if (id) {
+      handleCurrentGraph(+id);
+      return;
+    }
+
+    resetCurrentGraph();
+  };
 
   return (
-    <GraphListStyled>
-      {graphs.map(({ name }) => (
-        <GraphItem key={name}>{name}</GraphItem>
+    <GraphListStyled onClick={getCurrentGraph}>
+      {graphs.map(({ name, id }) => (
+        <GraphItem key={id} data-id={id} isCurrent={id === currentGraph.id}>
+          {name.length > 10 ? name.substring(1, 10) + '...' : name}
+        </GraphItem>
       ))}
     </GraphListStyled>
   );
@@ -16,23 +34,29 @@ const GraphList = () => {
 
 const GraphListStyled = styled.ul`
   width: 100%;
-  background-color: darkgray;
   padding: 0;
   margin: 0;
-  list-style: none;
   display: flex;
-  flex-grow: 0;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  background-color: darkgray;
+  flex-wrap: wrap;
+  flex: 0, 0, 1;
 `;
 
 const GraphItem = styled.li`
-  width: 30px;
-  height: 30px;
-  padding: 10px;
-  border-radius: 50%;
-  border: 1px solid black;
+  min-width: 100px;
+  min-height: 100px;
   margin: 10px;
-  line-height: 24px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: ${({ isCurrent }) => (isCurrent ? '1px solid red' : 'none')};
 `;
 
 export default GraphList;
