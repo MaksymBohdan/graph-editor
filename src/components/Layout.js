@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import GraphCreate from './GraphCreate';
 
 const Layout = ({ children }) => {
   const [toggle, setToggle] = useState(false);
@@ -15,7 +16,7 @@ const Layout = ({ children }) => {
         {children}
         <Sidebar toggle={toggle}>
           <Close onClick={() => setToggle(false)}> &times;</Close>
-          <p>someText</p>
+          <GraphCreate />
         </Sidebar>
       </Main>
     </Wrapper>

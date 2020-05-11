@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import { GraphListProvider } from './context/graphListContext';
+import App from './components/App';
 import './index.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <GraphListProvider>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </GraphListProvider>,
   document.getElementById('root')
 );
