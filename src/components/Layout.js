@@ -32,7 +32,6 @@ const Wrapper = styled.div`
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  background: white;
   position: relative;
 `;
 
@@ -52,7 +51,6 @@ const AddButton = styled.button`
 
 const Main = styled.div`
   flex-grow: 1;
-  background: white;
   display: flex;
 `;
 

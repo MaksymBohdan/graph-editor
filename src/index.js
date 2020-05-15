@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { GraphListProvider } from './context/graphListContext';
 import App from './components/App';
 import './index.css';
-import './normalize.css';
 
 ReactDOM.render(
   <GraphListProvider>

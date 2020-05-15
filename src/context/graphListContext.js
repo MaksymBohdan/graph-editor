@@ -1,26 +1,14 @@
-import React, { createContext, useState } from 'react';
-
-const defaultGraph = [
-  {
-    name: 'Nick',
-    edge: [],
-    id: 1,
-  },
-  {
-    name: 'Tom',
-    edge: [1],
-    id: 2,
-  },
-];
+import React, { createContext, useState, useRef } from 'react';
 
 const GraphListContext = createContext();
 
 const GraphListProvider = ({ children }) => {
-  const [graphs, setGraph] = useState(defaultGraph);
+  const [graphs, setGraph] = useState([]);
   const [currentGraph, setCurrentGraph] = useState({});
+  const graphRef = useRef({});
 
   const saveNewGraph = (data) => {
-    const newGraph = { id: graphs.length + 1, ...data };
+    const newGraph = { id: Date.now().toString(), ...data };
     setGraph((prevGraph) => [...prevGraph, newGraph]);
   };
 
@@ -51,6 +39,7 @@ const GraphListProvider = ({ children }) => {
         resetCurrentGraph,
         currentGraph,
         editGraph,
+        graphRef,
       }}
     >
       {children}
@@ -59,3 +48,16 @@ const GraphListProvider = ({ children }) => {
 };
 
 export { GraphListProvider, GraphListContext };
+
+// const defaultGraph = [
+//   {
+//     name: 'Nick',
+//     edge: '',
+//     id: '1',
+//   },
+//   {
+//     name: 'Tom',
+//     edge: '1',
+//     id: '2',
+//   },
+// ];
