@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import GraphCreate from './GraphCreate';
 
 const Layout = ({ children }) => {
   const [toggle, setToggle] = useState(false);
@@ -15,7 +16,7 @@ const Layout = ({ children }) => {
         {children}
         <Sidebar toggle={toggle}>
           <Close onClick={() => setToggle(false)}> &times;</Close>
-          <p>someText</p>
+          <GraphCreate />
         </Sidebar>
       </Main>
     </Wrapper>
@@ -31,24 +32,25 @@ const Wrapper = styled.div`
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  background: white;
   position: relative;
 `;
 
 const Header = styled.div`
-  padding: 40px 0;
+  min-height: 100px;
   border-bottom: 1px solid black;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const AddButton = styled.button`
   margin-right: 15px;
+  padding: 10px;
+  width: 100px;
 `;
 
 const Main = styled.div`
   flex-grow: 1;
-  background: white;
   display: flex;
 `;
 
