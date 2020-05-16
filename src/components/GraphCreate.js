@@ -11,12 +11,31 @@ const GraphCreate = () => {
   const { register, handleSubmit, reset, setValue } = useForm();
   const isEditable = currentGraph.id;
 
+  const getRandomLocation = () => {
+    const innerWidth = window.innerWidth / 1.5;
+    const innerHeight = window.innerHeight / 1.5;
+    const graphWidth = 100;
+
+    const left = Math.floor(
+      Math.random(graphWidth, innerWidth - graphWidth) * Math.floor(innerWidth)
+    );
+
+    const top = Math.floor(
+      Math.random(graphWidth, innerHeight - graphWidth) *
+        Math.floor(innerHeight)
+    );
+
+    return { top, left };
+  };
+
   const onSubmit = (data) => {
     if (isEditable) {
       editGraph(currentGraph.id, data);
       return;
     } else {
-      saveNewGraph(data);
+      const location = getRandomLocation();
+
+      saveNewGraph({ ...data, ...location });
     }
 
     reset();

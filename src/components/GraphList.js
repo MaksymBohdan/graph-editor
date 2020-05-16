@@ -1,18 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { GraphListContext } from '../context/graphListContext';
 import ConnectionLine from './ConnectionLine';
 
+let draggableId = null;
+let offsetX = null;
+let offsetY = null;
+
 const GraphList = () => {
+  const refList = useRef();
+
   const {
     graphs,
     handleCurrentGraph,
     resetCurrentGraph,
     currentGraph,
     graphRef,
+    moveGraph,
   } = useContext(GraphListContext);
 
+  /*
+   * MANAGE GRAPH
+   */
   const getCurrentGraph = (e) => {
     const id = e.target.dataset.id;
 
@@ -26,6 +36,9 @@ const GraphList = () => {
     handleCurrentGraph(id);
   };
 
+  /*
+   * CONNECTION LOGIC
+   */
   const [locations, setLocation] = useState([]);
 
   const filteredGraphs = () =>
@@ -53,54 +66,112 @@ const GraphList = () => {
     filteredGraphs();
   }, [graphs.length]);
 
+  /*
+   * DND
+   */
+
+  useEffect(() => {
+    Object.values(graphRef.current).forEach((el) =>
+      el.addEventListener('dragstart', onDrag)
+    );
+
+    refList.current.addEventListener('dragover', (e) => e.preventDefault());
+    refList.current.addEventListener('drop', onDrop);
+
+    return () => {
+      Object.values(graphRef.current).forEach((el) =>
+        el.removeEventListener('dragstart', onDrag)
+      );
+
+      refList.current.removeEventListener('dragover', (e) =>
+        e.preventDefault()
+      );
+      refList.current.removeEventListener('drop', onDrop);
+    };
+  }, [graphs.length]);
+
+  const onDrag = (e) => {
+    const id = e.currentTarget.dataset.id;
+
+    offsetX = e.offsetX;
+    offsetY = e.offsetY;
+    draggableId = null;
+    draggableId = id;
+  };
+
+  const onDrop = (e) => {
+    moveGraph(draggableId, {
+      left: e.pageX - offsetX,
+      top: e.pageY - offsetY - 100,
+    });
+
+    draggableId = null;
+    offsetX = null;
+    offsetY = null;
+  };
+
   return (
     <>
-      <GraphListStyled onClick={getCurrentGraph}>
+      <GraphListStyled onClick={getCurrentGraph} ref={refList}>
         {graphs.map((item) => (
           <GraphItem
+            draggable="true"
             ref={(el) => (graphRef.current[item.id] = el)}
             key={item.id}
-            data-id={item.id}
             isCurrent={item.id === currentGraph.id}
+            data-id={item.id}
+            top={item.top}
+            left={item.left}
           >
-            {item.name.length > 10
-              ? item.name.substring(1, 10) + '...'
-              : item.name}
+            <GraphTitle>
+              {item.name.length > 10
+                ? item.name.substring(1, 10) + '...'
+                : item.name}
+            </GraphTitle>
           </GraphItem>
         ))}
 
-        <ConnectionLine locations={locations} graphs={graphs} />
+        {/* <ConnectionLine locations={locations} graphs={graphs} /> */}
       </GraphListStyled>
     </>
   );
 };
 
 const GraphListStyled = styled.ul`
-  width: 100%;
   padding: 0;
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   list-style: none;
-  ${'' /* background-color: darkgray; */}
+
+  position: absolute;
+  top: 100px;
+  bottom: 0px;
+  width: 100%;
+
+  display: flex;
   flex-wrap: wrap;
   flex: 0, 0, 1;
 `;
 
 const GraphItem = styled.li`
-  min-width: 100px;
-  min-height: 100px;
-  margin: 10px;
-  padding: 10px;
+  position: absolute;
+  left: ${(props) => props.left}px;
+  top: ${(props) => props.top}px;
+
+  width: 100px;
+  height: 100px;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+  background-color: darkgray;
+
   border-radius: 50%;
   cursor: pointer;
   outline: ${({ isCurrent }) => (isCurrent ? '1px solid red' : 'none')};
+
   border: 1px solid black;
 `;
+
+const GraphTitle = styled.span``;
 
 export default GraphList;

@@ -30,6 +30,13 @@ const GraphListProvider = ({ children }) => {
     setCurrentGraph({});
   };
 
+  // DND move graph
+  const moveGraph = (id, location) => {
+    setGraph((prev) =>
+      prev.map((el) => (el.id === id ? { ...el, ...location } : el))
+    );
+  };
+
   return (
     <GraphListContext.Provider
       value={{
@@ -40,6 +47,7 @@ const GraphListProvider = ({ children }) => {
         currentGraph,
         editGraph,
         graphRef,
+        moveGraph,
       }}
     >
       {children}
@@ -48,16 +56,3 @@ const GraphListProvider = ({ children }) => {
 };
 
 export { GraphListProvider, GraphListContext };
-
-// const defaultGraph = [
-//   {
-//     name: 'Nick',
-//     edge: '',
-//     id: '1',
-//   },
-//   {
-//     name: 'Tom',
-//     edge: '1',
-//     id: '2',
-//   },
-// ];
