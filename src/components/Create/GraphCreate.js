@@ -1,36 +1,34 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect } from 'react';
-import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
-import { GraphListContext } from '../context/graphListContext';
+/* COMPONENTS */
+import { GraphListContext } from '../../context/graphListContext';
+/* OTHERS*/
+import { getRandomLocation } from '../../utils';
+import { Title, Input, Select, Button } from './GraphCreateStyled';
 
 const GraphCreate = () => {
   const { saveNewGraph, currentGraph, editGraph, graphs } = useContext(
     GraphListContext
   );
   const { register, handleSubmit, reset, setValue } = useForm();
+
+  /**
+   * Edit logic
+   */
   const isEditable = currentGraph.id;
 
-  const getRandomLocation = () => {
-    const innerWidth = window.innerWidth / 1.5;
-    const innerHeight = window.innerHeight / 1.5;
-    const graphWidth = 100;
+  useEffect(() => {
+    setValue([{ name: currentGraph.name }, { edge: currentGraph.edge }]);
+  }, [isEditable]);
 
-    const left = Math.floor(
-      Math.random(graphWidth, innerWidth - graphWidth) * Math.floor(innerWidth)
-    );
-
-    const top = Math.floor(
-      Math.random(graphWidth, innerHeight - graphWidth) *
-        Math.floor(innerHeight)
-    );
-
-    return { top, left };
-  };
-
+  /**
+   * Submit logic
+   */
   const onSubmit = (data) => {
     if (isEditable) {
       editGraph(currentGraph.id, data);
+
       return;
     } else {
       const location = getRandomLocation();
@@ -40,10 +38,6 @@ const GraphCreate = () => {
 
     reset();
   };
-
-  useEffect(() => {
-    setValue([{ name: currentGraph.name }, { edge: currentGraph.edge }]);
-  }, [isEditable]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -69,32 +63,5 @@ const GraphCreate = () => {
     </form>
   );
 };
-
-const Title = styled.p`
-  padding: 0;
-  margin: 0;
-  margin-bottom: 10px;
-  text-align: center;
-`;
-
-const Input = styled.input`
-  display: block;
-  margin: auto;
-  width: 200px;
-  margin-bottom: 10px;
-`;
-
-const Select = styled.select`
-  display: block;
-  margin: auto;
-  width: 200px;
-  margin-bottom: 10px;
-`;
-
-const Button = styled.button`
-  display: block;
-  margin: auto;
-  width: 200px;
-`;
 
 export default GraphCreate;

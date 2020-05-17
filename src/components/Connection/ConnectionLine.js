@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef } from 'react';
 
-const ConnectionLine = ({ locations, graphs }) => {
+const ConnectionLine = ({ connections, graphs }) => {
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const ConnectionLine = ({ locations, graphs }) => {
 
   return (
     <svg width="100%" ref={svgRef}>
-      {locations.map(({ posnALeft, posnBLeft }, idx) => (
+      {connections.map(({ posnALeft, posnBLeft }, idx) => (
         <>
           <defs>
             <marker
