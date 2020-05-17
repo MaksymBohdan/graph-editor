@@ -131,7 +131,7 @@ const GraphList = () => {
           </GraphItem>
         ))}
 
-        {/* <ConnectionLine locations={locations} graphs={graphs} /> */}
+        <ConnectionLine locations={locations} graphs={graphs} />
       </GraphListStyled>
     </>
   );
