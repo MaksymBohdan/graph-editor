@@ -1,11 +1,10 @@
-import React, { createContext, useState, useRef } from 'react';
+import React, { createContext, useState } from 'react';
 
 const GraphListContext = createContext();
 
 const GraphListProvider = ({ children }) => {
   const [graphs, setGraph] = useState([]);
   const [currentGraph, setCurrentGraph] = useState({});
-  const graphRef = useRef({});
 
   const saveNewGraph = (data) => {
     const newGraph = { id: Date.now().toString(), ...data };
@@ -20,17 +19,21 @@ const GraphListProvider = ({ children }) => {
     setGraph(editedGraphs);
   };
 
-  const handleCurrentGraph = (graphId) => {
+  const chooseGraph = (e) => {
+    const graphId = e.target.dataset.id;
+
+    if (!graphId && Object.keys(currentGraph).length === 0) return;
+
+    if (!graphId) {
+      setCurrentGraph({});
+      return;
+    }
+
     const current = graphs.find(({ id }) => id === graphId);
 
     setCurrentGraph(current);
   };
 
-  const resetCurrentGraph = () => {
-    setCurrentGraph({});
-  };
-
-  // DND move graph
   const moveGraph = (id, location) => {
     setGraph((prev) =>
       prev.map((el) => (el.id === id ? { ...el, ...location } : el))
@@ -42,11 +45,9 @@ const GraphListProvider = ({ children }) => {
       value={{
         graphs,
         saveNewGraph,
-        handleCurrentGraph,
-        resetCurrentGraph,
+        chooseGraph,
         currentGraph,
         editGraph,
-        graphRef,
         moveGraph,
       }}
     >

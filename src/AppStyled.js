@@ -1,29 +1,6 @@
-import React, { useState } from 'react';
 import styled from 'styled-components';
-import GraphCreate from './GraphCreate';
 
-const Layout = ({ children }) => {
-  const [toggle, setToggle] = useState(false);
-
-  return (
-    <Wrapper toggle={toggle}>
-      <Header>
-        <div />
-        <span>Graph Creator</span>
-        <AddButton onClick={() => setToggle(true)}>Add node</AddButton>
-      </Header>
-      <Main>
-        {children}
-        <Sidebar toggle={toggle}>
-          <Close onClick={() => setToggle(false)}> &times;</Close>
-          <GraphCreate />
-        </Sidebar>
-      </Main>
-    </Wrapper>
-  );
-};
-
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   padding-right: ${(props) => (props.toggle ? '250px' : '0px')};
   transition: 0.5s;
   border: 1px solid black;
@@ -35,7 +12,7 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const Header = styled.div`
+export const Header = styled.div`
   min-height: 100px;
   border-bottom: 1px solid black;
   display: flex;
@@ -43,18 +20,18 @@ const Header = styled.div`
   align-items: center;
 `;
 
-const AddButton = styled.button`
+export const AddButton = styled.button`
   margin-right: 15px;
   padding: 10px;
   width: 100px;
 `;
 
-const Main = styled.div`
+export const Main = styled.div`
   flex-grow: 1;
   display: flex;
 `;
 
-const Sidebar = styled.div`
+export const Sidebar = styled.div`
   width: ${(props) => (props.toggle ? '250px' : '0px')};
   height: 100%;
   position: fixed;
@@ -67,11 +44,9 @@ const Sidebar = styled.div`
   flex-direction: column;
 `;
 
-const Close = styled.span`
+export const Close = styled.span`
   font-size: 34px;
   cursor: pointer;
   margin-left: auto;
   padding-right: 15px;
 `;
-
-export default Layout;
