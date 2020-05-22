@@ -35,4 +35,4 @@ export const GraphItem = styled.li`
   border: 1px solid black;
 `;
 
-export const GraphTitle = styled.span``;
+export const Title = styled.span``;

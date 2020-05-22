@@ -1,47 +1,51 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef } from 'react';
+import LineSvg from './LineSvg';
 
-const ConnectionLine = ({ connections, graphs }) => {
-  const svgRef = useRef(null);
+const ConnectionLine = ({ graphs, graphRef }) => {
+  const connections = useRef([]);
+
+  /**
+   * GET CONNECTIONS LIST
+   */
+  const filteredGraphs = () => {
+    const filteredConnections = graphs
+      .filter(({ edge }) => edge)
+      .map((el) => {
+        const mainLocation = graphRef.current[el.id].getBoundingClientRect();
+        const relatedLocation = graphRef.current[
+          el.edge
+        ].getBoundingClientRect();
+
+        const main = {
+          x: mainLocation.x + mainLocation.width / 2,
+          y: mainLocation.y + mainLocation.height / 2,
+        };
+        const related = {
+          x: relatedLocation.x + relatedLocation.width / 2,
+          y: relatedLocation.y + +relatedLocation.height / 2,
+        };
+
+        return { main, related, id: el.id };
+      });
+
+    connections.current = filteredConnections;
+  };
 
   useEffect(() => {
-    return () => {
-      while (svgRef.current.lastElementChild) {
-        svgRef.current.removeChild(svgRef.current.lastElementChild);
-      }
-    };
-  }, [graphs.length]);
+    filteredGraphs();
+    console.log('filteredGraphs');
+  }, [graphs]);
+
+  console.log('filteredGraphs');
 
   return (
-    <svg width="100%" ref={svgRef}>
-      {connections.map(({ posnALeft, posnBLeft }, idx) => (
-        <>
-          <defs>
-            <marker
-              id="arrow"
-              markerWidth="10"
-              markerHeight="10"
-              refX="20"
-              refY="3"
-              orient="auto"
-              markerUnits="strokeWidth"
-            >
-              <path d="M0,0 L0,6 L9,3 z" fill="#f00" />
-            </marker>
-          </defs>
-          <line
-            x1={posnALeft.x}
-            y1={posnALeft.y - 100}
-            x2={posnBLeft.x}
-            y2={posnBLeft.y - 100}
-            stroke="#000"
-            strokeWidth="4"
-            markerEnd="url(#arrow)"
-          />
-        </>
+    <svg width="100%">
+      {connections.current.map(({ main, related, id }) => (
+        <LineSvg key={id} main={main} related={related} />
       ))}
     </svg>
   );
 };
 
-export default ConnectionLine;
+export default React.memo(ConnectionLine);
