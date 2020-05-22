@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect, useRef } from 'react';
+import { throttle, debounce } from 'throttle-debounce';
 /* COMPONENTS */
 import ConnectionLine from '../Connection/ConnectionLine';
 import GraphTitle from './cmp/GraphTitle';
@@ -10,6 +11,7 @@ import { GraphListContext } from '../../context/graphListContext';
 let draggableId = null;
 let offsetX = null;
 let offsetY = null;
+let updatedGraphs = [];
 
 const GraphList = () => {
   const refList = useRef(null);
@@ -24,9 +26,33 @@ const GraphList = () => {
       el.addEventListener('dragstart', onDrag)
     );
 
-    // Object.values(graphRef.current).forEach((el) =>
-    //   el.addEventListener('drag', () => filteredGraphs())
-    // );
+    Object.values(graphRef.current).forEach((el) =>
+      el.addEventListener(
+        'drag',
+        throttle(200, (e) => {
+          // console.log('draggableId', draggableId);
+          // draggableId
+          // moveGraph(draggableId, {
+          //   left: e.pageX - offsetX,
+          //   top: e.pageY - offsetY - 100,
+          // });
+
+          const a = updatedGraphs.map((el) =>
+            el.id === draggableId
+              ? {
+                  ...el,
+                  ...{
+                    left: e.pageX - offsetX,
+                    top: e.pageY - offsetY - 100,
+                  },
+                }
+              : el
+          );
+
+          updatedGraphs = a;
+        })
+      )
+    );
 
     refList.current.addEventListener('dragover', (e) => e.preventDefault());
     refList.current.addEventListener('drop', onDrop);
@@ -37,7 +63,7 @@ const GraphList = () => {
       );
 
       // Object.values(graphRef.current).forEach((el) =>
-      //   el.removeEventListener('drag', () => console.log('drag'))
+      //   el.addEventListener('drag', onDrop)
       // );
 
       refList.current.removeEventListener('dragover', (e) =>
@@ -49,6 +75,7 @@ const GraphList = () => {
 
   const onDrag = (e) => {
     const id = e.currentTarget.dataset.id;
+    updatedGraphs = graphs;
 
     offsetX = e.offsetX;
     offsetY = e.offsetY;
@@ -83,7 +110,7 @@ const GraphList = () => {
           </GraphItem>
         ))}
 
-        <ConnectionLine graphs={graphs} graphRef={graphRef} />
+        <ConnectionLine graphs={updatedGraphs} graphRef={graphRef} />
       </GraphListStyled>
     </>
   );
