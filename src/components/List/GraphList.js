@@ -11,7 +11,6 @@ import { GraphListContext } from '../../context/graphListContext';
 let draggableId = null;
 let offsetX = null;
 let offsetY = null;
-let updatedGraphs = [];
 
 const GraphList = () => {
   const refList = useRef(null);
@@ -22,49 +21,20 @@ const GraphList = () => {
   );
 
   useEffect(() => {
+    // HANDLE DRAG START
     Object.values(graphRef.current).forEach((el) =>
       el.addEventListener('dragstart', onDrag)
     );
 
-    Object.values(graphRef.current).forEach((el) =>
-      el.addEventListener(
-        'drag',
-        throttle(200, (e) => {
-          // console.log('draggableId', draggableId);
-          // draggableId
-          // moveGraph(draggableId, {
-          //   left: e.pageX - offsetX,
-          //   top: e.pageY - offsetY - 100,
-          // });
-
-          const a = updatedGraphs.map((el) =>
-            el.id === draggableId
-              ? {
-                  ...el,
-                  ...{
-                    left: e.pageX - offsetX,
-                    top: e.pageY - offsetY - 100,
-                  },
-                }
-              : el
-          );
-
-          updatedGraphs = a;
-        })
-      )
-    );
-
+    // HANDLE DROP
     refList.current.addEventListener('dragover', (e) => e.preventDefault());
     refList.current.addEventListener('drop', onDrop);
 
+    // HANDLE REMOVE LISTENERS
     return () => {
       Object.values(graphRef.current).forEach((el) =>
         el.removeEventListener('dragstart', onDrag)
       );
-
-      // Object.values(graphRef.current).forEach((el) =>
-      //   el.addEventListener('drag', onDrop)
-      // );
 
       refList.current.removeEventListener('dragover', (e) =>
         e.preventDefault()
@@ -75,7 +45,6 @@ const GraphList = () => {
 
   const onDrag = (e) => {
     const id = e.currentTarget.dataset.id;
-    updatedGraphs = graphs;
 
     offsetX = e.offsetX;
     offsetY = e.offsetY;
@@ -110,7 +79,7 @@ const GraphList = () => {
           </GraphItem>
         ))}
 
-        <ConnectionLine graphs={updatedGraphs} graphRef={graphRef} />
+        <ConnectionLine graphs={graphs} graphRef={graphRef} />
       </GraphListStyled>
     </>
   );

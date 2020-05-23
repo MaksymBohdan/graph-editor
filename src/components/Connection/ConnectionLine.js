@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import LineSvg from './LineSvg';
 
 const ConnectionLine = ({ graphs, graphRef }) => {
-  const connections = useRef([]);
+  const [connections, setConnections] = useState([]);
 
   /**
    * GET CONNECTIONS LIST
@@ -28,20 +28,16 @@ const ConnectionLine = ({ graphs, graphRef }) => {
 
         return { main, related, id: el.id };
       });
-
-    connections.current = filteredConnections;
+    setConnections(filteredConnections);
   };
 
   useEffect(() => {
     filteredGraphs();
-    console.log('filteredGraphs');
   }, [graphs]);
-
-  console.log('filteredGraphs');
 
   return (
     <svg width="100%">
-      {connections.current.map(({ main, related, id }) => (
+      {connections.map(({ main, related, id }) => (
         <LineSvg key={id} main={main} related={related} />
       ))}
     </svg>
