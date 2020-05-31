@@ -1,6 +1,8 @@
 import React from 'react';
 
 const LineSvg = ({ main, related }) => {
+  console.log('main', main);
+  console.log('related', related);
   return (
     <>
       <defs>
@@ -17,10 +19,10 @@ const LineSvg = ({ main, related }) => {
         </marker>
       </defs>
       <line
-        x1={main.x}
-        y1={main.y - 100}
-        x2={related.x}
-        y2={related.y - 100}
+        x1={main.left}
+        y1={main.top}
+        x2={related.left}
+        y2={related.top}
         stroke="#000"
         strokeWidth="4"
         markerEnd="url(#arrow)"

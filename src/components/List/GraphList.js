@@ -76,6 +76,8 @@ const GraphList = () => {
           onDragStart={() => false}
           onMouseDown={handleDrag}
           isCurrent={item.id === currentGraph.id}
+          style={{ top: item.top, left: item.left }}
+          id={item.id}
           top={item.top}
           left={item.left}
         >
@@ -83,7 +85,7 @@ const GraphList = () => {
         </GraphItem>
       ))}
 
-      {/* <ConnectionLine connections={connections} /> */}
+      <ConnectionLine />
     </GraphListStyled>
   );
 };
