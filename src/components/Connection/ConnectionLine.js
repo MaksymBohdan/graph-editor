@@ -26,12 +26,12 @@ const ConnectionLine = () => {
         return {
           id: el.id,
           main: {
-            top: Number.parseInt(main.top),
-            left: Number.parseInt(main.left),
+            top: Number.parseInt(main.top) + 50,
+            left: Number.parseInt(main.left) + 50,
           },
           related: {
-            top: Number.parseInt(related.top),
-            left: Number.parseInt(related.left),
+            top: Number.parseInt(related.top) + 50,
+            left: Number.parseInt(related.left) + 50,
           },
         };
       });
