@@ -35,4 +35,6 @@ export const GraphItem = styled.li`
   border: 1px solid black;
 `;
 
-export const Title = styled.span``;
+export const Title = styled.span`
+  user-select: none;
+`;
