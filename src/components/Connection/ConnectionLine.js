@@ -1,51 +1,41 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { GraphListContext } from '../../context/graphListContext';
+
 import LineSvg from './LineSvg';
 
-const ConnectionLine = ({ graphs, graphRef }) => {
-  const connections = useRef([]);
-
-  /**
-   * GET CONNECTIONS LIST
-   */
-  const filteredGraphs = () => {
-    const filteredConnections = graphs
-      .filter(({ edge }) => edge)
-      .map((el) => {
-        const mainLocation = graphRef.current[el.id].getBoundingClientRect();
-        const relatedLocation = graphRef.current[
-          el.edge
-        ].getBoundingClientRect();
-
-        const main = {
-          x: mainLocation.x + mainLocation.width / 2,
-          y: mainLocation.y + mainLocation.height / 2,
-        };
-        const related = {
-          x: relatedLocation.x + relatedLocation.width / 2,
-          y: relatedLocation.y + +relatedLocation.height / 2,
-        };
-
-        return { main, related, id: el.id };
-      });
-
-    connections.current = filteredConnections;
-  };
+const ConnectionLine = ({ refSvg }) => {
+  const { arrows, graphs } = useContext(GraphListContext);
+  const [connections, setConnections] = useState([]);
 
   useEffect(() => {
-    filteredGraphs();
-    console.log('filteredGraphs');
+    const arrow = arrows.map(({ id, mainId, relatedId }) => {
+      const main = document.getElementById(mainId).style;
+      const related = document.getElementById(relatedId).style;
+
+      return {
+        id: id,
+        main: {
+          top: Number.parseInt(main.top) + 50,
+          left: Number.parseInt(main.left) + 50,
+        },
+        related: {
+          top: Number.parseInt(related.top) + 50,
+          left: Number.parseInt(related.left) + 50,
+        },
+      };
+    });
+    setConnections(arrow);
   }, [graphs]);
 
-  console.log('filteredGraphs');
-
   return (
-    <svg width="100%">
-      {connections.current.map(({ main, related, id }) => (
-        <LineSvg key={id} main={main} related={related} />
+    <svg width="100%" ref={refSvg}>
+      {connections.map((el) => (
+        <LineSvg key={el.id} main={el.main} related={el.related} id={el.id} />
       ))}
     </svg>
   );
 };
 
-export default React.memo(ConnectionLine);
+export default ConnectionLine;
+
+ConnectionLine.whyDidYouRender = true;

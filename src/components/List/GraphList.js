@@ -1,6 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useEffect, useRef } from 'react';
-import { throttle, debounce } from 'throttle-debounce';
+import React, { useContext, useRef } from 'react';
 /* COMPONENTS */
 import ConnectionLine from '../Connection/ConnectionLine';
 import GraphTitle from './cmp/GraphTitle';
@@ -8,111 +6,117 @@ import GraphTitle from './cmp/GraphTitle';
 import { GraphListStyled, GraphItem } from './GraphListStyled';
 import { GraphListContext } from '../../context/graphListContext';
 
-let draggableId = null;
-let offsetX = null;
-let offsetY = null;
-let updatedGraphs = [];
-
 const GraphList = () => {
   const refList = useRef(null);
-  const graphRef = useRef({});
+  const refSvg = useRef(null);
 
-  const { graphs, chooseGraph, currentGraph, moveGraph } = useContext(
+  const { graphs, chooseGraph, currentGraph, arrows } = useContext(
     GraphListContext
   );
 
-  useEffect(() => {
-    Object.values(graphRef.current).forEach((el) =>
-      el.addEventListener('dragstart', onDrag)
-    );
+  const handleDrag = (event) => {
+    event.preventDefault();
+    // GRAPHS
+    const graph = event.currentTarget;
+    // const graphId = event.currentTarget.id;
 
-    Object.values(graphRef.current).forEach((el) =>
-      el.addEventListener(
-        'drag',
-        throttle(200, (e) => {
-          // console.log('draggableId', draggableId);
-          // draggableId
-          // moveGraph(draggableId, {
-          //   left: e.pageX - offsetX,
-          //   top: e.pageY - offsetY - 100,
-          // });
+    // ARROWS TO MOVE
+    const arrowMainToMove = arrows
+      .filter(({ mainId }) => mainId === graph.id)
+      .map((el) => document.getElementById(el.id));
 
-          const a = updatedGraphs.map((el) =>
-            el.id === draggableId
-              ? {
-                  ...el,
-                  ...{
-                    left: e.pageX - offsetX,
-                    top: e.pageY - offsetY - 100,
-                  },
-                }
-              : el
-          );
+    const arrowHeadToMove = arrows
+      .filter(({ relatedId }) => relatedId === graph.id)
+      .map((el) => document.getElementById(el.id));
 
-          updatedGraphs = a;
-        })
-      )
-    );
+    // GRAPH SIZE
+    const graphWidth = graph.offsetWidth;
+    const graphHeight = graph.offsetHeight;
 
-    refList.current.addEventListener('dragover', (e) => e.preventDefault());
-    refList.current.addEventListener('drop', onDrop);
+    // POSITION OF CURRENT CLICK
+    const clickY = event.clientY - graph.getBoundingClientRect().top;
+    const clickX = event.clientX - graph.getBoundingClientRect().left;
 
-    return () => {
-      Object.values(graphRef.current).forEach((el) =>
-        el.removeEventListener('dragstart', onDrag)
-      );
+    // BORDERS OF PARRENT ELEMENT
+    const topParrent = refList.current.getBoundingClientRect().top;
+    const leftParrent = refList.current.getBoundingClientRect().left;
+    const rightParrent = refList.current.getBoundingClientRect().right;
+    const bottomParrent = refList.current.getBoundingClientRect().bottom;
 
-      // Object.values(graphRef.current).forEach((el) =>
-      //   el.addEventListener('drag', onDrop)
-      // );
+    const onMouseMove = (event) => {
+      // CURRENT TOP/LEFT GRAPH POSITION
+      const topGraph = event.pageY - clickY;
+      const leftGraph = event.pageX - clickX;
 
-      refList.current.removeEventListener('dragover', (e) =>
-        e.preventDefault()
-      );
-      refList.current.removeEventListener('drop', onDrop);
+      // NEW GRAPH POSITION
+      let newTopGraph = topGraph - topParrent + 'px';
+      let newLeftGraph = leftGraph + 'px';
+
+      // TOP
+      if (topParrent > topGraph) {
+        newTopGraph = topParrent - 100 + 'px';
+      }
+      // LEFT
+      if (leftParrent > leftGraph) {
+        newLeftGraph = leftParrent + 'px';
+      }
+      // RIGHT
+      if (rightParrent < leftGraph + graphWidth) {
+        newLeftGraph = rightParrent - graphWidth + 'px';
+      }
+      // BOTTOM
+      if (bottomParrent < topGraph + graphHeight) {
+        newTopGraph = bottomParrent - topParrent - graphHeight + 'px';
+      }
+
+      // MOVING ARROW
+      if (arrowMainToMove.length) {
+        arrowMainToMove.map((arrow) => {
+          arrow.setAttribute('y1', topGraph - topParrent + 50);
+          arrow.setAttribute('x1', leftGraph + 50);
+        });
+      }
+
+      if (arrowHeadToMove.length) {
+        arrowHeadToMove.map((arrow) => {
+          arrow.setAttribute('y2', topGraph - topParrent + 50);
+          arrow.setAttribute('x2', leftGraph + 50);
+        });
+      }
+
+      // MOVING GRAPH
+      graph.style.top = newTopGraph;
+      graph.style.left = newLeftGraph;
     };
-  }, [graphs.length]);
 
-  const onDrag = (e) => {
-    const id = e.currentTarget.dataset.id;
-    updatedGraphs = graphs;
+    // TO MOVE A GRAPH
+    document.addEventListener('mousemove', onMouseMove);
 
-    offsetX = e.offsetX;
-    offsetY = e.offsetY;
-    draggableId = id;
-  };
-
-  const onDrop = (e) => {
-    moveGraph(draggableId, {
-      left: e.pageX - offsetX,
-      top: e.pageY - offsetY - 100,
-    });
-
-    draggableId = null;
-    offsetX = null;
-    offsetY = null;
+    // TO STOP MOVING A GRAPH
+    document.onmouseup = function () {
+      document.removeEventListener('mousemove', onMouseMove);
+    };
   };
 
   return (
-    <>
-      <GraphListStyled onClick={chooseGraph} ref={refList}>
-        {graphs.map((item) => (
-          <GraphItem
-            draggable="true"
-            ref={(el) => (graphRef.current[item.id] = el)}
-            key={item.id}
-            isCurrent={item.id === currentGraph.id}
-            data-id={item.id}
-            top={item.top}
-            left={item.left}
-          >
-            <GraphTitle name={item.name} />
-          </GraphItem>
-        ))}
+    <GraphListStyled onClick={chooseGraph} ref={refList}>
+      {graphs.map((item) => (
+        <GraphItem
+          key={item.id}
+          onDragStart={() => false}
+          onMouseDown={handleDrag}
+          isCurrent={item.id === currentGraph.id}
+          style={{ top: item.top, left: item.left }}
+          id={item.id}
+          top={item.top}
+          left={item.left}
+        >
+          <GraphTitle name={item.name} />
+        </GraphItem>
+      ))}
 
-        <ConnectionLine graphs={updatedGraphs} graphRef={graphRef} />
-      </GraphListStyled>
-    </>
+      <ConnectionLine refSvg={refSvg} />
+    </GraphListStyled>
   );
 };
 
