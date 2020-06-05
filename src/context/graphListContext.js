@@ -5,9 +5,25 @@ const GraphListContext = createContext();
 const GraphListProvider = ({ children }) => {
   const [graphs, setGraph] = useState([]);
   const [currentGraph, setCurrentGraph] = useState({});
+  const [arrows, setArrow] = useState([]);
+
+  const createNewArrow = (graph) => {
+    const newArrow = {
+      id: `arrow-${Date.now().toString()}`,
+      mainId: graph.id,
+      relatedId: graph.edge,
+    };
+
+    setArrow((prev) => [...prev, newArrow]);
+  };
 
   const saveNewGraph = (data) => {
     const newGraph = { id: Date.now().toString(), ...data };
+
+    if (data.edge) {
+      createNewArrow(newGraph);
+    }
+
     setGraph((prevGraph) => [...prevGraph, newGraph]);
   };
 
@@ -48,7 +64,7 @@ const GraphListProvider = ({ children }) => {
         chooseGraph,
         currentGraph,
         editGraph,
-        moveGraph,
+        arrows,
       }}
     >
       {children}

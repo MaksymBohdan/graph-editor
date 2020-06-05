@@ -8,12 +8,26 @@ import { GraphListContext } from '../../context/graphListContext';
 
 const GraphList = () => {
   const refList = useRef(null);
-  const { graphs, chooseGraph, currentGraph } = useContext(GraphListContext);
+  const refSvg = useRef(null);
+
+  const { graphs, chooseGraph, currentGraph, arrows } = useContext(
+    GraphListContext
+  );
 
   const handleDrag = (event) => {
     event.preventDefault();
-
+    // GRAPHS
     const graph = event.currentTarget;
+    // const graphId = event.currentTarget.id;
+
+    // ARROWS TO MOVE
+    const arrowMainToMove = arrows
+      .filter(({ mainId }) => mainId === graph.id)
+      .map((el) => document.getElementById(el.id));
+
+    const arrowHeadToMove = arrows
+      .filter(({ relatedId }) => relatedId === graph.id)
+      .map((el) => document.getElementById(el.id));
 
     // GRAPH SIZE
     const graphWidth = graph.offsetWidth;
@@ -55,6 +69,22 @@ const GraphList = () => {
         newTopGraph = bottomParrent - topParrent - graphHeight + 'px';
       }
 
+      // MOVING ARROW
+      if (arrowMainToMove.length) {
+        arrowMainToMove.map((arrow) => {
+          arrow.setAttribute('y1', topGraph - topParrent + 50);
+          arrow.setAttribute('x1', leftGraph + 50);
+        });
+      }
+
+      if (arrowHeadToMove.length) {
+        arrowHeadToMove.map((arrow) => {
+          arrow.setAttribute('y2', topGraph - topParrent + 50);
+          arrow.setAttribute('x2', leftGraph + 50);
+        });
+      }
+
+      // MOVING GRAPH
       graph.style.top = newTopGraph;
       graph.style.left = newLeftGraph;
     };
@@ -85,7 +115,7 @@ const GraphList = () => {
         </GraphItem>
       ))}
 
-      <ConnectionLine />
+      <ConnectionLine refSvg={refSvg} />
     </GraphListStyled>
   );
 };

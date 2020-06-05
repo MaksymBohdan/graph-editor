@@ -1,8 +1,6 @@
 import React from 'react';
 
-const LineSvg = ({ main, related }) => {
-  console.log('main', main);
-  console.log('related', related);
+const LineSvg = ({ main, related, id }) => {
   return (
     <>
       <defs>
@@ -19,6 +17,7 @@ const LineSvg = ({ main, related }) => {
         </marker>
       </defs>
       <line
+        id={id}
         x1={main.left}
         y1={main.top}
         x2={related.left}
