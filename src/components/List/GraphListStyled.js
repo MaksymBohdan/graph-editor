@@ -17,9 +17,6 @@ export const GraphListStyled = styled.ul`
 
 export const GraphItem = styled.li`
   position: absolute;
-  left: ${(props) => props.left}px;
-  top: ${(props) => props.top}px;
-
   width: 100px;
   height: 100px;
 

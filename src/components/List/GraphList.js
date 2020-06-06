@@ -1,21 +1,28 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 /* COMPONENTS */
 import ConnectionLine from '../Connection/ConnectionLine';
 import GraphTitle from './cmp/GraphTitle';
 /* OTHERS*/
 import { GraphListStyled, GraphItem } from './GraphListStyled';
 import { GraphListContext } from '../../context/graphListContext';
+import {
+  getBordersOfElement,
+  generateGraphPosition,
+  generateArrowPosition,
+} from '../../utils';
 
 const GraphList = () => {
-  const refList = useRef(null);
-
-  const { graphs, chooseGraph, currentGraph, arrows } = useContext(
-    GraphListContext
-  );
+  const {
+    graphs,
+    chooseGraph,
+    currentGraph,
+    arrows,
+    refList,
+    updateGraph,
+  } = useContext(GraphListContext);
 
   const handleDrag = (event) => {
     event.preventDefault();
-    // GRAPHS
     const graph = event.currentTarget;
 
     // ARROWS TO MOVE
@@ -36,62 +43,36 @@ const GraphList = () => {
     const clickX = event.clientX - graph.getBoundingClientRect().left;
 
     // BORDERS OF PARRENT ELEMENT
-    const topParrent = refList.current.getBoundingClientRect().top;
-    const leftParrent = refList.current.getBoundingClientRect().left;
-    const rightParrent = refList.current.getBoundingClientRect().right;
-    const bottomParrent = refList.current.getBoundingClientRect().bottom;
+    const parrentBorder = getBordersOfElement(refList.current);
 
     const onMouseMove = (event) => {
       // CURRENT TOP/LEFT GRAPH POSITION
       const topGraph = event.pageY - clickY;
       const leftGraph = event.pageX - clickX;
 
-      // NEW GRAPH POSITION
-      let newTopGraph = topGraph - topParrent + 'px';
-      let newLeftGraph = leftGraph + 'px';
+      // GENERATE GRAPH POSITION PARAMS
+      const graphData = {
+        topGraph,
+        leftGraph,
+        graphWidth,
+        graphHeight,
+        parrentBorder,
+      };
 
-      // TOP
-      if (topParrent > topGraph) {
-        newTopGraph = topParrent - 100 + 'px';
-      }
-      // LEFT
-      if (leftParrent > leftGraph) {
-        newLeftGraph = leftParrent + 'px';
-      }
-      // RIGHT
-      if (rightParrent < leftGraph + graphWidth) {
-        newLeftGraph = rightParrent - graphWidth + 'px';
-      }
-      // BOTTOM
-      if (bottomParrent < topGraph + graphHeight) {
-        newTopGraph = bottomParrent - topParrent - graphHeight + 'px';
-      }
+      // NEW GRAPH POSITION
+      const { newTopGraph, newLeftGraph } = generateGraphPosition(graphData);
+
+      // MOVING GRAPH
+      graph.style.top = newTopGraph + 'px';
+      graph.style.left = newLeftGraph + 'px';
 
       // MOVING ARROW
       if (arrowMainToMove.length) {
         arrowMainToMove.map((arrow) => {
-          let newTopArrowPosition = topGraph - topParrent + graphHeight / 2;
-          let newLeftArrowPostiton = leftGraph + graphWidth / 2;
-
-          // TOP ARROW
-          if (topParrent > topGraph) {
-            newTopArrowPosition = topParrent - 100 + graphHeight / 2;
-          }
-
-          // LEFT ARROW
-          if (leftParrent > leftGraph) {
-            newLeftArrowPostiton = leftParrent + graphHeight / 2;
-          }
-
-          // RIGHT ARROW
-          if (rightParrent < leftGraph + graphWidth) {
-            newLeftArrowPostiton = rightParrent - graphWidth + graphHeight / 2;
-          }
-          // BOTTOM ARROW
-          if (bottomParrent < topGraph + graphHeight) {
-            newTopArrowPosition =
-              bottomParrent - topParrent - graphHeight + graphHeight / 2;
-          }
+          const {
+            newTopArrowPosition,
+            newLeftArrowPostiton,
+          } = generateArrowPosition(graphData);
 
           arrow.setAttribute('y1', newTopArrowPosition);
           arrow.setAttribute('x1', newLeftArrowPostiton);
@@ -100,37 +81,15 @@ const GraphList = () => {
 
       if (arrowHeadToMove.length) {
         arrowHeadToMove.map((arrow) => {
-          let newTopArrowPosition = topGraph - topParrent + graphHeight / 2;
-          let newLeftArrowPostiton = leftGraph + graphWidth / 2;
-
-          // TOP ARROW
-          if (topParrent > topGraph) {
-            newTopArrowPosition = topParrent - 100 + graphHeight / 2;
-          }
-
-          // LEFT ARROW
-          if (leftParrent > leftGraph) {
-            newLeftArrowPostiton = leftParrent + graphHeight / 2;
-          }
-
-          // RIGHT ARROW
-          if (rightParrent < leftGraph + graphWidth) {
-            newLeftArrowPostiton = rightParrent - graphWidth + graphHeight / 2;
-          }
-          // BOTTOM ARROW
-          if (bottomParrent < topGraph + graphHeight) {
-            newTopArrowPosition =
-              bottomParrent - topParrent - graphHeight + graphHeight / 2;
-          }
+          const {
+            newTopArrowPosition,
+            newLeftArrowPostiton,
+          } = generateArrowPosition(graphData);
 
           arrow.setAttribute('y2', newTopArrowPosition);
           arrow.setAttribute('x2', newLeftArrowPostiton);
         });
       }
-
-      // MOVING GRAPH
-      graph.style.top = newTopGraph;
-      graph.style.left = newLeftGraph;
     };
 
     // TO MOVE A GRAPH
@@ -138,6 +97,12 @@ const GraphList = () => {
 
     // TO STOP MOVING A GRAPH
     document.onmouseup = function () {
+      // //SAVE UPDATED LOCATION
+      updateGraph(graph.id, {
+        top: Number.parseFloat(graph.style.top),
+        left: Number.parseFloat(graph.style.left),
+      });
+
       document.removeEventListener('mousemove', onMouseMove);
     };
   };
@@ -152,8 +117,6 @@ const GraphList = () => {
           isCurrent={item.id === currentGraph.id}
           style={{ top: item.top, left: item.left }}
           id={item.id}
-          top={item.top}
-          left={item.left}
         >
           <GraphTitle name={item.name} />
         </GraphItem>
