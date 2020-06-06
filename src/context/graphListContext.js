@@ -1,4 +1,5 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useRef } from 'react';
+import { newId, getRandomLocation } from '../utils';
 
 const GraphListContext = createContext();
 
@@ -6,10 +7,12 @@ const GraphListProvider = ({ children }) => {
   const [graphs, setGraph] = useState([]);
   const [currentGraph, setCurrentGraph] = useState({});
   const [arrows, setArrow] = useState([]);
+  const refList = useRef(null);
 
+  // ARROW
   const createNewArrow = (graph) => {
     const newArrow = {
-      id: `arrow-${Date.now().toString()}`,
+      id: `arrow-${newId()}`,
       mainId: graph.id,
       relatedId: graph.edge,
     };
@@ -17,8 +20,21 @@ const GraphListProvider = ({ children }) => {
     setArrow((prev) => [...prev, newArrow]);
   };
 
-  const editArrow = (idGraph, data) => {
-    // FINF OLD GRAPH
+  const deleteArrow = (idToDelete) => {
+    setArrow((prevArrow) =>
+      prevArrow.filter((arrow) => arrow.id !== idToDelete)
+    );
+  };
+
+  const updateArrow = (arrowToUpdate, relatedId) => {
+    setArrow((prevArrow) =>
+      prevArrow.map((arrow) =>
+        arrow.id === arrowToUpdate.id ? { ...arrowToUpdate, relatedId } : arrow
+      )
+    );
+  };
+
+  const manageArrow = (idGraph, data) => {
     const oldGraph = graphs.find(({ id }) => id === idGraph);
 
     // CHECK EXISTED ARROW
@@ -30,40 +46,23 @@ const GraphListProvider = ({ children }) => {
     // IF NOTHING TO UPDATE
     if (!existredArrow && !data.edge) return;
 
-    // UPDATE EXISTED ARROW
     if (existredArrow && data.edge) {
-      setArrow((prevArrow) =>
-        prevArrow.map((arrow) =>
-          arrow.id === existredArrow.id
-            ? { ...existredArrow, relatedId: data.edge }
-            : arrow
-        )
-      );
-
+      updateArrow(existredArrow, data.edge);
       return;
     }
 
-    // REMOVE ARROW
     if (existredArrow && !data.edge) {
-      setArrow((prevArrow) =>
-        prevArrow.filter((arrow) => arrow.id !== existredArrow.id)
-      );
+      deleteArrow(existredArrow.id);
       return;
     }
 
-    // ADD NEW ARROW
-    setArrow((prev) => [
-      ...prev,
-      {
-        id: `arrow-${Date.now().toString()}`,
-        mainId: idGraph,
-        relatedId: data.edge,
-      },
-    ]);
+    createNewArrow({ id: idGraph, edge: data.edge });
   };
 
+  // GRAPHS
   const saveNewGraph = (data) => {
-    const newGraph = { id: Date.now().toString(), ...data };
+    const randomLocation = getRandomLocation(refList.current);
+    const newGraph = { id: newId(), ...data, ...randomLocation };
 
     if (data.edge) {
       createNewArrow(newGraph);
@@ -72,21 +71,23 @@ const GraphListProvider = ({ children }) => {
     setGraph((prevGraph) => [...prevGraph, newGraph]);
   };
 
-  const editGraph = (idGraph, data) => {
-    editArrow(idGraph, data);
-
-    const editedGraphs = graphs.map((graph) =>
-      graph.id === idGraph ? { ...graph, ...data } : graph
+  const updateGraph = (idGraph, data) => {
+    setGraph((prevGraphs) =>
+      prevGraphs.map((graph) =>
+        graph.id === idGraph ? { ...graph, ...data } : graph
+      )
     );
+  };
 
-    setGraph(editedGraphs);
+  const editGraph = (idGraph, data) => {
+    manageArrow(idGraph, data);
+    updateGraph(idGraph, data);
   };
 
   const chooseGraph = (e) => {
-    const graphId = e.target.id;
+    const graphId = e.currentTarget.id;
 
     if (!graphId && Object.keys(currentGraph).length === 0) return;
-    console.log('chooseGraph', graphId);
 
     if (!graphId) {
       setCurrentGraph({});
@@ -107,6 +108,8 @@ const GraphListProvider = ({ children }) => {
         currentGraph,
         editGraph,
         arrows,
+        refList,
+        updateGraph,
       }}
     >
       {children}

@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 /* COMPONENTS */
 import { GraphListContext } from '../../context/graphListContext';
 /* OTHERS*/
-import { getRandomLocation } from '../../utils';
 import { Title, Input, Select, Button } from './GraphCreateStyled';
 
 const GraphCreate = () => {
@@ -27,9 +26,7 @@ const GraphCreate = () => {
 
       return;
     } else {
-      const location = getRandomLocation();
-
-      saveNewGraph({ ...data, ...location });
+      saveNewGraph({ ...data });
     }
 
     reset();
