@@ -8,7 +8,6 @@ import { GraphListContext } from '../../context/graphListContext';
 
 const GraphList = () => {
   const refList = useRef(null);
-  const refSvg = useRef(null);
 
   const { graphs, chooseGraph, currentGraph, arrows } = useContext(
     GraphListContext
@@ -18,7 +17,6 @@ const GraphList = () => {
     event.preventDefault();
     // GRAPHS
     const graph = event.currentTarget;
-    // const graphId = event.currentTarget.id;
 
     // ARROWS TO MOVE
     const arrowMainToMove = arrows
@@ -72,15 +70,61 @@ const GraphList = () => {
       // MOVING ARROW
       if (arrowMainToMove.length) {
         arrowMainToMove.map((arrow) => {
-          arrow.setAttribute('y1', topGraph - topParrent + 50);
-          arrow.setAttribute('x1', leftGraph + 50);
+          let newTopArrowPosition = topGraph - topParrent + graphHeight / 2;
+          let newLeftArrowPostiton = leftGraph + graphWidth / 2;
+
+          // TOP ARROW
+          if (topParrent > topGraph) {
+            newTopArrowPosition = topParrent - 100 + graphHeight / 2;
+          }
+
+          // LEFT ARROW
+          if (leftParrent > leftGraph) {
+            newLeftArrowPostiton = leftParrent + graphHeight / 2;
+          }
+
+          // RIGHT ARROW
+          if (rightParrent < leftGraph + graphWidth) {
+            newLeftArrowPostiton = rightParrent - graphWidth + graphHeight / 2;
+          }
+          // BOTTOM ARROW
+          if (bottomParrent < topGraph + graphHeight) {
+            newTopArrowPosition =
+              bottomParrent - topParrent - graphHeight + graphHeight / 2;
+          }
+
+          arrow.setAttribute('y1', newTopArrowPosition);
+          arrow.setAttribute('x1', newLeftArrowPostiton);
         });
       }
 
       if (arrowHeadToMove.length) {
         arrowHeadToMove.map((arrow) => {
-          arrow.setAttribute('y2', topGraph - topParrent + 50);
-          arrow.setAttribute('x2', leftGraph + 50);
+          let newTopArrowPosition = topGraph - topParrent + graphHeight / 2;
+          let newLeftArrowPostiton = leftGraph + graphWidth / 2;
+
+          // TOP ARROW
+          if (topParrent > topGraph) {
+            newTopArrowPosition = topParrent - 100 + graphHeight / 2;
+          }
+
+          // LEFT ARROW
+          if (leftParrent > leftGraph) {
+            newLeftArrowPostiton = leftParrent + graphHeight / 2;
+          }
+
+          // RIGHT ARROW
+          if (rightParrent < leftGraph + graphWidth) {
+            newLeftArrowPostiton = rightParrent - graphWidth + graphHeight / 2;
+          }
+          // BOTTOM ARROW
+          if (bottomParrent < topGraph + graphHeight) {
+            newTopArrowPosition =
+              bottomParrent - topParrent - graphHeight + graphHeight / 2;
+          }
+
+          arrow.setAttribute('y2', newTopArrowPosition);
+          arrow.setAttribute('x2', newLeftArrowPostiton);
         });
       }
 
@@ -115,7 +159,7 @@ const GraphList = () => {
         </GraphItem>
       ))}
 
-      <ConnectionLine refSvg={refSvg} />
+      <ConnectionLine />
     </GraphListStyled>
   );
 };

@@ -17,6 +17,51 @@ const GraphListProvider = ({ children }) => {
     setArrow((prev) => [...prev, newArrow]);
   };
 
+  const editArrow = (idGraph, data) => {
+    // FINF OLD GRAPH
+    const oldGraph = graphs.find(({ id }) => id === idGraph);
+
+    // CHECK EXISTED ARROW
+    const existredArrow = arrows.find(
+      ({ mainId, relatedId }) =>
+        mainId === oldGraph.id && relatedId === oldGraph.edge
+    );
+
+    // IF NOTHING TO UPDATE
+    if (!existredArrow && !data.edge) return;
+
+    // UPDATE EXISTED ARROW
+    if (existredArrow && data.edge) {
+      setArrow((prevArrow) =>
+        prevArrow.map((arrow) =>
+          arrow.id === existredArrow.id
+            ? { ...existredArrow, relatedId: data.edge }
+            : arrow
+        )
+      );
+
+      return;
+    }
+
+    // REMOVE ARROW
+    if (existredArrow && !data.edge) {
+      setArrow((prevArrow) =>
+        prevArrow.filter((arrow) => arrow.id !== existredArrow.id)
+      );
+      return;
+    }
+
+    // ADD NEW ARROW
+    setArrow((prev) => [
+      ...prev,
+      {
+        id: `arrow-${Date.now().toString()}`,
+        mainId: idGraph,
+        relatedId: data.edge,
+      },
+    ]);
+  };
+
   const saveNewGraph = (data) => {
     const newGraph = { id: Date.now().toString(), ...data };
 
@@ -28,6 +73,8 @@ const GraphListProvider = ({ children }) => {
   };
 
   const editGraph = (idGraph, data) => {
+    editArrow(idGraph, data);
+
     const editedGraphs = graphs.map((graph) =>
       graph.id === idGraph ? { ...graph, ...data } : graph
     );
@@ -36,9 +83,10 @@ const GraphListProvider = ({ children }) => {
   };
 
   const chooseGraph = (e) => {
-    const graphId = e.target.dataset.id;
+    const graphId = e.target.id;
 
     if (!graphId && Object.keys(currentGraph).length === 0) return;
+    console.log('chooseGraph', graphId);
 
     if (!graphId) {
       setCurrentGraph({});
@@ -48,12 +96,6 @@ const GraphListProvider = ({ children }) => {
     const current = graphs.find(({ id }) => id === graphId);
 
     setCurrentGraph(current);
-  };
-
-  const moveGraph = (id, location) => {
-    setGraph((prev) =>
-      prev.map((el) => (el.id === id ? { ...el, ...location } : el))
-    );
   };
 
   return (

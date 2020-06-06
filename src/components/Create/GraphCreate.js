@@ -13,18 +13,14 @@ const GraphCreate = () => {
   );
   const { register, handleSubmit, reset, setValue } = useForm();
 
-  /**
-   * Edit logic
-   */
+  //EDIT
   const isEditable = currentGraph.id;
 
   useEffect(() => {
     setValue([{ name: currentGraph.name }, { edge: currentGraph.edge }]);
   }, [isEditable]);
 
-  /**
-   * Submit logic
-   */
+  //  SUBMIT
   const onSubmit = (data) => {
     if (isEditable) {
       editGraph(currentGraph.id, data);
