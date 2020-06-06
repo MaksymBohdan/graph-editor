@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
+// COMPONENTS
+import LineSvg from './LineSvg';
+// OTHERS
 import { GraphListContext } from '../../context/graphListContext';
 
-import LineSvg from './LineSvg';
-
-const ConnectionLine = ({ refSvg }) => {
+const ConnectionLine = () => {
   const { arrows, graphs } = useContext(GraphListContext);
   const [connections, setConnections] = useState([]);
 
@@ -28,7 +29,7 @@ const ConnectionLine = ({ refSvg }) => {
   }, [graphs]);
 
   return (
-    <svg width="100%" ref={refSvg}>
+    <svg width="100%">
       {connections.map((el) => (
         <LineSvg key={el.id} main={el.main} related={el.related} id={el.id} />
       ))}
